@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo"
 )
 
 type City struct {
@@ -17,25 +19,32 @@ type City struct {
 	Population  int    `json:"population,omitempty"  db:"Population"`
 }
 
+var (
+	db *sqlx.DB
+)
+
 func main() {
-	db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("DB_DATABASE")))
+	_db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("DB_DATABASE")))
 	if err != nil {
 		log.Fatalf("Cannot Connect to Database: %s", err)
 	}
+	db = _db
+	e := echo.New()
 
-	fmt.Println("Connected!")
-	cities := []City{}
-	db.Select(&cities, "SELECT * FROM city WHERE CountryCode='JPN'")
+	e.GET("/cities/:cityName", getCityInfoHandler)
 
-	db.Exec("CREATE TABLE IF NOT EXISTS citesInJapan (Name varchar(30), Population int)")
-	fmt.Println("テーブルを作成")
+	e.Start(":10200")
+}
 
-	fmt.Println("日本の都市一覧")
-	for _, city := range cities {
-		fmt.Printf("都市名: %s, 人口: %d人\n", city.Name, city.Population)
-		db.Exec("INSERT INTO citesInJapan VALUES(?, ?)", city.Name, city.Population)
+func getCityInfoHandler(c echo.Context) error {
+	cityName := c.Param("cityName")
+	fmt.Println(cityName)
+
+	city := City{}
+	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityName)
+	if city.Name == "" {
+		return c.NoContent(http.StatusNotFound)
 	}
 
-
-	fmt.Println("追加できました！")
+	return c.JSON(http.StatusOK, city)
 }
