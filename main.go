@@ -27,8 +27,15 @@ func main() {
 	cities := []City{}
 	db.Select(&cities, "SELECT * FROM city WHERE CountryCode='JPN'")
 
+	db.Exec("CREATE TABLE IF NOT EXISTS citesInJapan (Name varchar(30), Population int)")
+	fmt.Println("テーブルを作成")
+
 	fmt.Println("日本の都市一覧")
 	for _, city := range cities {
 		fmt.Printf("都市名: %s, 人口: %d人\n", city.Name, city.Population)
+		db.Exec("INSERT INTO citesInJapan VALUES(?, ?)", city.Name, city.Population)
 	}
+
+
+	fmt.Println("追加できました！")
 }
