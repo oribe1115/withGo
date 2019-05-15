@@ -19,6 +19,12 @@ type City struct {
 	Population  int    `json:"population,omitempty"  db:"Population"`
 }
 
+type CountryWithFewData struct {
+	Code       string `json:"code,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Population int    `json:"population,omitempty"`
+}
+
 var (
 	db *sqlx.DB
 )
@@ -33,6 +39,7 @@ func main() {
 
 	e.GET("/cities/:cityName", getCityInfoHandler)
 	e.POST("/addingCity", AddNewCity)
+	e.GET("/occupancy/:nameOfCity", Percentage)
 
 	e.Start(":10200")
 }
@@ -62,4 +69,16 @@ func AddNewCity(c echo.Context) error {
 
 	return c.String(http.StatusOK, "Finished!")
 
+}
+
+func Percentage(c echo.Context) error {
+	cityName := c.Param("nameOfCity")
+
+	city := City{}
+	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityName)
+	thisCountry := CountryWithFewData{}
+	db.Get(&thisCountry, "SELECT Code, Name, Population FROM country WHERE Code=?", city.CountryCode)
+	occupaid := (city.Population / thisCountry.Population) * 100
+
+	return c.String(http.StatusOK, string(occupaid)+"%")
 }
