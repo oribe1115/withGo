@@ -54,6 +54,9 @@ func main() {
 	withLogin.Use(checkLogin)
 	withLogin.GET("/cities/:cityName", getCityInfoHandler)
 
+	// useNameを表示する
+	withLogin.GET("/userName", getUserNameHandler)
+
 	e.Start(":10200")
 }
 
@@ -158,4 +161,10 @@ func getCityInfoHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, city)
+}
+
+func getUserNameHandler(c echo.Context) error {
+	username := c.Get("userName").(string)
+
+	return c.String(http.StatusOK, username)
 }
