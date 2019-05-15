@@ -32,6 +32,7 @@ func main() {
 	e := echo.New()
 
 	e.GET("/cities/:cityName", getCityInfoHandler)
+	e.POST("/addingCity", AddNewCity)
 
 	e.Start(":10200")
 }
@@ -47,4 +48,8 @@ func getCityInfoHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, city)
+}
+
+func AddNewCity(c echo.Context) error {
+
 }
