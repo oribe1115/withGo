@@ -58,4 +58,8 @@ func AddNewCity(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, newCity)
 	}
 
+	db.Exec("INSERT INTO citesInJapan VALUES(?, ?, ?, ?, ?)", newCity.ID, newCity.Name, newCity.CountryCode, newCity.District, newCity.Population)
+
+	return c.String(http.StatusOK, "Finished!")
+
 }
