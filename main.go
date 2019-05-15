@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -76,13 +77,18 @@ func Percentage(c echo.Context) error {
 
 	city := City{}
 	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityName)
-	thisCountry := CountryWithFewData{}
+	populationOfCountry := 1
 
-	db.Get(&thisCountry, "SELECT Code, Name, Population FROM country WHERE Code=?", city.CountryCode)
+	db.Get(&populationOfCountry, "SELECT Population FROM country WHERE Code=?", city.CountryCode)
 
-	return c.String(http.StatusOK, thisCountry.Name)
+	cityFloat := float64(city.Population)
+	countory := float64(populationOfCountry)
 
-	occupaid := (city.Population / thisCountry.Population) * 100
+	occupaid := (cityFloat / countory) * 100
 
-	return c.String(http.StatusOK, string(occupaid)+"%")
+	occupaidInt := int(occupaid)
+
+	result := strconv.Itoa(occupaidInt)
+
+	return c.String(http.StatusOK, result+"%")
 }
