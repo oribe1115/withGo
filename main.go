@@ -25,7 +25,8 @@ func main() {
 
 	fmt.Println("Connected!")
 	city := City{}
-	db.Get(&city, "SELECT * FROM city WHERE Name='Tokyo'")
+	cityname := os.Args[1]
+	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityname)
 
-	fmt.Printf("Tokyoの人口は%d人です\n", city.Population)
+	fmt.Printf("%sの人口は%d人です\n", cityname, city.Population)
 }
