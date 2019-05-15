@@ -51,5 +51,11 @@ func getCityInfoHandler(c echo.Context) error {
 }
 
 func AddNewCity(c echo.Context) error {
+	newCity := new(City)
+	err := c.Bind(newCity)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, newCity)
+	}
 
 }
