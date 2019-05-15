@@ -77,7 +77,11 @@ func Percentage(c echo.Context) error {
 	city := City{}
 	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityName)
 	thisCountry := CountryWithFewData{}
+
 	db.Get(&thisCountry, "SELECT Code, Name, Population FROM country WHERE Code=?", city.CountryCode)
+
+	return c.String(http.StatusOK, thisCountry.Name)
+
 	occupaid := (city.Population / thisCountry.Population) * 100
 
 	return c.String(http.StatusOK, string(occupaid)+"%")
