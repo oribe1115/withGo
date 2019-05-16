@@ -24,6 +24,10 @@ type City struct {
 	Population  int    `json:"population,omitempty"  db:"Population"`
 }
 
+type CountryName struct {
+	Name string `json:"name,omitempty" db:"Name"`
+}
+
 type Me struct {
 	Username string `json:"username,omitempty"  db:"username"`
 }
@@ -58,6 +62,7 @@ func main() {
 	withLogin.Use(checkLogin)
 	withLogin.GET("/cities/:cityName", getCityInfoHandler)
 	withLogin.GET("/whoami", getWhoAmIHandler)
+	withLogin.GET("/countries", getAllCountriesNameHandler)
 
 	// useNameを表示する
 	withLogin.GET("/userName", getUserNameHandler)
@@ -178,4 +183,11 @@ func getWhoAmIHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, Me{
 		Username: c.Get("userName").(string),
 	})
+}
+
+func getAllCountriesNameHandler(c echo.Context) error {
+	countrynames := []CountryName{}
+	db.Select(&countrynames, "SELECT Name FROM country")
+
+	return c.JSON(http.StatusOK, countrynames)
 }
