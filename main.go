@@ -31,7 +31,7 @@ type CountryNameAndCode struct {
 
 type CityName struct {
 	Name        string `json:"name,omitempty" db:"Name"`
-	CountryCode string `json:"country_code,omitempty" db:CountryCode`
+	CountryCode string `json:"countryCode,omitempty" db:"CountryCode"`
 }
 
 type Me struct {
@@ -201,7 +201,7 @@ func getAllCountriesNameHandler(c echo.Context) error {
 }
 
 func getAllCitiesInThisCountryHandler(c echo.Context) error {
-	countrycode := c.Get("countryCode").(string)
+	countrycode := c.Param("countryCode")
 	namesOfCities := []CityName{}
 	db.Select(&namesOfCities, "SELECT Name, CountryCode FROM city WHERE CountryCode=?", countrycode)
 
