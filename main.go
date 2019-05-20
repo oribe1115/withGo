@@ -25,9 +25,10 @@ type City struct {
 	Population  int    `json:"population,omitempty"  db:"Population"`
 }
 
-type CountryNameAndCode struct {
-	Name string `json:"name,omitempty" db:"Name"`
-	Code string `json:"code,omitempty" db:"Code"`
+type Country struct {
+	Name   string `json:"name,omitempty" db:"Name"`
+	Code   string `json:"code,omitempty" db:"Code"`
+	Region string `json:"region,omitempty" db:"Region"`
 }
 
 type CityName struct {
@@ -75,7 +76,7 @@ func main() {
 	withLogin.GET("/cities/:cityID", getCityInfoHandler)
 	withLogin.GET("/whoami", getWhoAmIHandler)
 
-	withLogin.GET("/countries", getAllCountriesNameHandler)
+	withLogin.GET("/countries", getAllCountriesHandler)
 	withLogin.GET("/citiesInThisCountry/:countryCode", getAllCitiesInThisCountryHandler)
 
 	withLogin.GET("/region", getRegionHandler)
@@ -203,9 +204,9 @@ func getWhoAmIHandler(c echo.Context) error {
 	})
 }
 
-func getAllCountriesNameHandler(c echo.Context) error {
-	countrynames := []CountryNameAndCode{}
-	db.Select(&countrynames, "SELECT Name, Code FROM country")
+func getAllCountriesHandler(c echo.Context) error {
+	countrynames := []Country{}
+	db.Select(&countrynames, "SELECT Name, Code, Region FROM country")
 
 	return c.JSON(http.StatusOK, countrynames)
 }
