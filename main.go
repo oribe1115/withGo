@@ -30,7 +30,8 @@ type CountryNameAndCode struct {
 }
 
 type CityName struct {
-	Name string `json:"name,omitempty"  db:"Name"`
+	Name        string `json:"name,omitempty" db:"Name"`
+	CountryCode string `json:"country_code,omitempty" db:CountryCode`
 }
 
 type Me struct {
@@ -69,7 +70,7 @@ func main() {
 	withLogin.GET("/whoami", getWhoAmIHandler)
 
 	withLogin.GET("/countries", getAllCountriesNameHandler)
-	withLogin.GET("/:countryCode/cities", getAllCitiesInThisCountryHandler)
+	withLogin.GET("/citiesInThisCountry/:countryCode", getAllCitiesInThisCountryHandler)
 
 	// useNameを表示する
 	withLogin.GET("/userName", getUserNameHandler)
@@ -202,7 +203,7 @@ func getAllCountriesNameHandler(c echo.Context) error {
 func getAllCitiesInThisCountryHandler(c echo.Context) error {
 	countrycode := c.Get("countryCode").(string)
 	namesOfCities := []CityName{}
-	db.Select(&namesOfCities, "SELECT Name FROM city WHERE CountryCode=?", countrycode)
+	db.Select(&namesOfCities, "SELECT Name, CountryCode FROM city WHERE CountryCode=?", countrycode)
 
 	return c.JSON(http.StatusOK, namesOfCities)
 }
