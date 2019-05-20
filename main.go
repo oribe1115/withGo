@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
@@ -67,7 +68,7 @@ func main() {
 
 	withLogin := e.Group("")
 	withLogin.Use(checkLogin)
-	withLogin.GET("/cities/:cityName", getCityInfoHandler)
+	withLogin.GET("/cities/:cityID", getCityInfoHandler)
 	withLogin.GET("/whoami", getWhoAmIHandler)
 
 	withLogin.GET("/countries", getAllCountriesNameHandler)
@@ -171,10 +172,12 @@ func checkLogin(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func getCityInfoHandler(c echo.Context) error {
-	cityName := c.Param("cityName")
+	cityID := c.Param("cityID")
+	idNumber := 0
+	idNumber, _ = strconv.Atoi(cityID)
 
 	city := City{}
-	db.Get(&city, "SELECT * FROM city WHERE Name=?", cityName)
+	db.Get(&city, "SELECT * FROM city WHERE ID=?", idNumber)
 	if city.Name == "" {
 		return c.NoContent(http.StatusNotFound)
 	}
