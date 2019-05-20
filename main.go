@@ -40,6 +40,10 @@ type Me struct {
 	Username string `json:"username,omitempty"  db:"username"`
 }
 
+type Region struct {
+	Region string `json:"region,omitempty" db:"Region"`
+}
+
 var (
 	db *sqlx.DB
 )
@@ -73,6 +77,8 @@ func main() {
 
 	withLogin.GET("/countries", getAllCountriesNameHandler)
 	withLogin.GET("/citiesInThisCountry/:countryCode", getAllCitiesInThisCountryHandler)
+
+	withLogin.GET("/region", getRegionHandler)
 
 	// useNameを表示する
 	withLogin.GET("/userName", getUserNameHandler)
@@ -210,4 +216,11 @@ func getAllCitiesInThisCountryHandler(c echo.Context) error {
 	db.Select(&namesOfCities, "SELECT ID, Name, CountryCode FROM city WHERE CountryCode=?", countrycode)
 
 	return c.JSON(http.StatusOK, namesOfCities)
+}
+
+func getRegionHandler(c echo.Context) error {
+	regions := []Region{}
+	db.Select(&regions, "SELECT Region FROM country GROUP BY Region")
+
+	return c.JSON(http.StatusOK, regions)
 }
